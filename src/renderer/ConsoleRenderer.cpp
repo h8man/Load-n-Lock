@@ -41,8 +41,8 @@ namespace renderer
     {
         ClearConsole();
 
-        std::cout << "Load & Lock - Console Sokoban\n\n";
-        std::cout << "Level " << levelNumber << " / " << levelCount << ": " << levelName << "\n\n";
+        std::cout << "Load & Lock - Console Sokoban\n";
+        std::cout << "Level " << levelNumber << " / " << levelCount << ": " << levelName << "\n";
 
         for (int y = 0; y < gameState.GetHeight(); ++y)
         {
@@ -58,12 +58,12 @@ namespace renderer
             }
         }
 
-        std::cout << "\nMoves: " << gameState.GetMoveCount() << '\n';
+        std::cout << "Moves: " << gameState.GetMoveCount() << '\n';
         std::cout << "Controls: WASD or Arrow Keys to move, N/P to change level, R to reset, Q to quit.\n";
 
         if (gameState.IsComplete())
         {
-            std::cout << "\nLevel complete. Press N for next level, P for previous level, R to restart, or Q to quit.\n";
+            std::cout << "Level complete. Press N for next level, P for previous level, R to restart, or Q to quit.\n";
         }
     }
 

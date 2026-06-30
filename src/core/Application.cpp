@@ -5,6 +5,7 @@
 #include "../input/InputHandler.h"
 #include "../renderer/ConsoleRenderer.h"
 
+#include <Windows.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -39,6 +40,7 @@ namespace core
 
         input::InputHandler inputHandler;
         renderer::ConsoleRenderer renderer;
+        bool wasLevelComplete = gameState.IsComplete();
 
         while (true)
         {
@@ -48,30 +50,50 @@ namespace core
                 static_cast<int>(currentLevelIndex + 1),
                 static_cast<int>(levels.size()));
 
+            const auto moveWithFeedback = [&](int dx, int dy)
+            {
+                if (gameState.Move(dx, dy))
+                {
+                    Beep(880, 35);
+
+                    if (!wasLevelComplete && gameState.IsComplete())
+                    {
+                        Beep(784, 70);
+                        Beep(988, 70);
+                        Beep(1175, 90);
+                        Beep(1568, 140);
+                        Beep(1175, 90);
+                        Beep(1568, 180);
+                    }
+
+                    wasLevelComplete = gameState.IsComplete();
+                }
+            };
+
             switch (inputHandler.ReadCommand())
             {
             case input::Command::MoveUp:
                 if (!gameState.IsComplete())
                 {
-                    gameState.Move(0, -1);
+                    moveWithFeedback(0, -1);
                 }
                 break;
             case input::Command::MoveDown:
                 if (!gameState.IsComplete())
                 {
-                    gameState.Move(0, 1);
+                    moveWithFeedback(0, 1);
                 }
                 break;
             case input::Command::MoveLeft:
                 if (!gameState.IsComplete())
                 {
-                    gameState.Move(-1, 0);
+                    moveWithFeedback(-1, 0);
                 }
                 break;
             case input::Command::MoveRight:
                 if (!gameState.IsComplete())
                 {
-                    gameState.Move(1, 0);
+                    moveWithFeedback(1, 0);
                 }
                 break;
             case input::Command::PreviousLevel:
@@ -83,6 +105,9 @@ namespace core
                         std::cerr << "Failed to initialize level: " << error << '\n';
                         return 1;
                     }
+                    Beep(1319, 50);
+                    Beep(988, 70);
+                    wasLevelComplete = gameState.IsComplete();
                 }
                 break;
             case input::Command::NextLevel:
@@ -94,10 +119,15 @@ namespace core
                         std::cerr << "Failed to initialize level: " << error << '\n';
                         return 1;
                     }
+
+                    Beep(988, 50);
+                    Beep(1319, 70);
+                    wasLevelComplete = gameState.IsComplete();
                 }
                 break;
             case input::Command::Reset:
                 gameState.Reset();
+                wasLevelComplete = gameState.IsComplete();
                 break;
             case input::Command::Quit:
                 return 0;
