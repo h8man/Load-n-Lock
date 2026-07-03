@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "Application.h"
 
+#include "../audio/AudioPlayer.h"
 #include "../assets/AssetManager.h"
 #include "../game/GameLogic.h"
 #ifdef LOAD_AND_LOCK_USE_RAYLIB
@@ -11,7 +12,6 @@
 #include "../renderer/ConsoleRenderer.h"
 #endif
 
-#include <Windows.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -20,6 +20,7 @@ namespace core
 {
     int Application::Run() const
     {
+        audio::AudioPlayer audioPlayer;
         assets::AssetManager assetManager;
         std::vector<assets::LevelData> levels;
         std::string error;
@@ -69,16 +70,11 @@ namespace core
             {
                 if (gameState.Move(dx, dy))
                 {
-                    Beep(880, 35);
+                    audioPlayer.PlayMove();
 
                     if (!wasLevelComplete && gameState.IsComplete())
                     {
-                        Beep(784, 70);
-                        Beep(988, 70);
-                        Beep(1175, 90);
-                        Beep(1568, 140);
-                        Beep(1175, 90);
-                        Beep(1568, 180);
+                        audioPlayer.PlayLevelComplete();
                     }
 
                     wasLevelComplete = gameState.IsComplete();
@@ -120,8 +116,7 @@ namespace core
                         std::cerr << "Failed to initialize level: " << error << '\n';
                         return 1;
                     }
-                    Beep(1319, 50);
-                    Beep(988, 70);
+                    audioPlayer.PlayPreviousLevel();
                     wasLevelComplete = gameState.IsComplete();
                 }
                 break;
@@ -135,8 +130,7 @@ namespace core
                         return 1;
                     }
 
-                    Beep(988, 50);
-                    Beep(1319, 70);
+                    audioPlayer.PlayNextLevel();
                     wasLevelComplete = gameState.IsComplete();
                 }
                 break;
