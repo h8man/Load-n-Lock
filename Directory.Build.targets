@@ -1,0 +1,12 @@
+<Project>
+  <ItemGroup>
+    <ClCompile Include="src\input\RaylibInputHandler.cpp" />
+    <ClCompile Include="src\renderer\RaylibRenderer.cpp" />
+    <ClInclude Include="src\input\RaylibInputHandler.h" />
+    <ClInclude Include="src\renderer\RaylibRenderer.h" />
+  </ItemGroup>
+
+  <Target Name="LoadAndLockCopyRaylibDll" AfterTargets="Build" Condition="'$(Platform)' == 'x64' and Exists('$(MSBuildThisFileDirectory)raylib\lib\raylib.dll')">
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)raylib\lib\raylib.dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

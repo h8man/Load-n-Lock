@@ -1,9 +1,15 @@
 #include "Application.h"
+#include "Application.h"
 
 #include "../assets/AssetManager.h"
 #include "../game/GameLogic.h"
+#ifdef LOAD_AND_LOCK_USE_RAYLIB
+#include "../input/RaylibInputHandler.h"
+#include "../renderer/RaylibRenderer.h"
+#else
 #include "../input/InputHandler.h"
 #include "../renderer/ConsoleRenderer.h"
+#endif
 
 #include <Windows.h>
 #include <iostream>
@@ -38,11 +44,20 @@ namespace core
             return 1;
         }
 
+#ifdef LOAD_AND_LOCK_USE_RAYLIB
+        input::RaylibInputHandler inputHandler;
+        renderer::RaylibRenderer renderer;
+#else
         input::InputHandler inputHandler;
         renderer::ConsoleRenderer renderer;
+#endif
         bool wasLevelComplete = gameState.IsComplete();
 
+#ifdef LOAD_AND_LOCK_USE_RAYLIB
+        while (renderer.IsOpen())
+#else
         while (true)
+#endif
         {
             renderer.Render(
                 gameState,
