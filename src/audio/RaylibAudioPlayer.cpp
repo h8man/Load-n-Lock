@@ -191,4 +191,10 @@ namespace audio
         AudioState& state = GetAudioState();
         PlaySoundEffect(state.nextLevel);
     }
+
+    bool RaylibAudioPlayer::IsLevelCompletePlaying() const
+    {
+        AudioState& state = GetAudioState();
+        return state.isReady && state.levelComplete.frameCount > 0 && IsSoundPlaying(state.levelComplete);
+    }
 }

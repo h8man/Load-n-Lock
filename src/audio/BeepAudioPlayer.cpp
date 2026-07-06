@@ -56,4 +56,9 @@ namespace audio
 
         PlayToneSequence(tones, static_cast<int>(sizeof(tones) / sizeof(tones[0])));
     }
+
+    bool BeepAudioPlayer::IsLevelCompletePlaying() const
+    {
+        return false;
+    }
 }

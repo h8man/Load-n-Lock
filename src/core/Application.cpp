@@ -53,6 +53,7 @@ namespace core
         renderer::ConsoleRenderer renderer;
 #endif
         bool wasLevelComplete = gameState.IsComplete();
+        bool shouldAdvanceToNextLevel = false;
 
 #ifdef LOAD_AND_LOCK_USE_RAYLIB
         while (renderer.IsOpen())
@@ -66,22 +67,43 @@ namespace core
                 static_cast<int>(currentLevelIndex + 1),
                 static_cast<int>(levels.size()));
 
+            if (!shouldAdvanceToNextLevel && wasLevelComplete)
+            {
+                audioPlayer.PlayLevelComplete();
+                shouldAdvanceToNextLevel = wasLevelComplete = gameState.IsComplete();
+            }
+
+            if (shouldAdvanceToNextLevel && !audioPlayer.IsLevelCompletePlaying())
+            {
+                shouldAdvanceToNextLevel = false;
+                ++currentLevelIndex;
+                if (!loadCurrentLevel())
+                {
+                    std::cerr << "Failed to initialize level: " << error << '\n';
+                    return 1;
+                }
+                wasLevelComplete = gameState.IsComplete();
+            }
+
             const auto moveWithFeedback = [&](int dx, int dy)
             {
                 if (gameState.Move(dx, dy))
                 {
                     audioPlayer.PlayMove();
-
                     if (!wasLevelComplete && gameState.IsComplete())
                     {
-                        audioPlayer.PlayLevelComplete();
+                        wasLevelComplete = gameState.IsComplete();
                     }
-
-                    wasLevelComplete = gameState.IsComplete();
                 }
             };
 
-            switch (inputHandler.ReadCommand())
+            const input::Command command = inputHandler.ReadCommand();
+            if (shouldAdvanceToNextLevel && command != input::Command::Quit)
+            {
+                continue;
+            }
+
+            switch (command)
             {
             case input::Command::MoveUp:
                 if (!gameState.IsComplete())
