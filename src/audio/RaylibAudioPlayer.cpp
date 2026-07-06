@@ -1,13 +1,9 @@
-#include "AudioPlayer.h"
-#include "AudioPlayer.h"
-
-#ifdef LOAD_AND_LOCK_USE_RAYLIB
+#include "RaylibAudioPlayer.h"
 
 #include <raylib.h>
 
 #include <algorithm>
 #include <cmath>
-#include <cstdint>
 #include <vector>
 
 namespace
@@ -63,9 +59,7 @@ namespace
         wave.sampleRate = kSampleRate;
         wave.sampleSize = 16;
         wave.channels = 1;
-
-        const int dataSize = static_cast<int>(samples.size() * sizeof(short));
-        wave.data = MemAlloc(dataSize);
+        wave.data = MemAlloc(static_cast<int>(samples.size() * sizeof(short)));
         std::copy(samples.begin(), samples.end(), static_cast<short*>(wave.data));
         return wave;
     }
@@ -95,11 +89,7 @@ namespace
                 return;
             }
 
-            static constexpr Tone moveTones[] =
-            {
-                { 880, 35 }
-            };
-
+            static constexpr Tone moveTones[] = { { 880, 35 } };
             static constexpr Tone levelCompleteTones[] =
             {
                 { 784, 70 },
@@ -109,13 +99,11 @@ namespace
                 { 1175, 90 },
                 { 1568, 180 }
             };
-
             static constexpr Tone previousLevelTones[] =
             {
                 { 1319, 50 },
                 { 988, 70 }
             };
-
             static constexpr Tone nextLevelTones[] =
             {
                 { 988, 50 },
@@ -139,17 +127,14 @@ namespace
             {
                 UnloadSound(move);
             }
-
             if (levelComplete.frameCount > 0)
             {
                 UnloadSound(levelComplete);
             }
-
             if (previousLevel.frameCount > 0)
             {
                 UnloadSound(previousLevel);
             }
-
             if (nextLevel.frameCount > 0)
             {
                 UnloadSound(nextLevel);
@@ -181,84 +166,29 @@ namespace
     }
 }
 
-#else
-
-#include <Windows.h>
-
-namespace
-{
-    void PlayToneSequence(const int (*tones)[2], int count)
-    {
-        for (int i = 0; i < count; ++i)
-        {
-            Beep(tones[i][0], tones[i][1]);
-        }
-    }
-}
-
-#endif
-
 namespace audio
 {
-    void AudioPlayer::PlayMove() const
+    void RaylibAudioPlayer::PlayMove() const
     {
-#ifdef LOAD_AND_LOCK_USE_RAYLIB
         AudioState& state = GetAudioState();
         PlaySoundEffect(state.move);
-#else
-        Beep(880, 35);
-#endif
     }
 
-    void AudioPlayer::PlayLevelComplete() const
+    void RaylibAudioPlayer::PlayLevelComplete() const
     {
-#ifdef LOAD_AND_LOCK_USE_RAYLIB
         AudioState& state = GetAudioState();
         PlaySoundEffect(state.levelComplete);
-#else
-        static constexpr int tones[][2] =
-        {
-            { 784, 70 },
-            { 988, 70 },
-            { 1175, 90 },
-            { 1568, 140 },
-            { 1175, 90 },
-            { 1568, 180 }
-        };
-
-        PlayToneSequence(tones, static_cast<int>(sizeof(tones) / sizeof(tones[0])));
-#endif
     }
 
-    void AudioPlayer::PlayPreviousLevel() const
+    void RaylibAudioPlayer::PlayPreviousLevel() const
     {
-#ifdef LOAD_AND_LOCK_USE_RAYLIB
         AudioState& state = GetAudioState();
         PlaySoundEffect(state.previousLevel);
-#else
-        static constexpr int tones[][2] =
-        {
-            { 1319, 50 },
-            { 988, 70 }
-        };
-
-        PlayToneSequence(tones, static_cast<int>(sizeof(tones) / sizeof(tones[0])));
-#endif
     }
 
-    void AudioPlayer::PlayNextLevel() const
+    void RaylibAudioPlayer::PlayNextLevel() const
     {
-#ifdef LOAD_AND_LOCK_USE_RAYLIB
         AudioState& state = GetAudioState();
         PlaySoundEffect(state.nextLevel);
-#else
-        static constexpr int tones[][2] =
-        {
-            { 988, 50 },
-            { 1319, 70 }
-        };
-
-        PlayToneSequence(tones, static_cast<int>(sizeof(tones) / sizeof(tones[0])));
-#endif
     }
 }

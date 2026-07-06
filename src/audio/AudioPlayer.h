@@ -1,14 +1,17 @@
 #pragma once
 #pragma once
 
+#ifdef LOAD_AND_LOCK_USE_RAYLIB
+#include "RaylibAudioPlayer.h"
+#else
+#include "BeepAudioPlayer.h"
+#endif
+
 namespace audio
 {
-    class AudioPlayer
-    {
-    public:
-        void PlayMove() const;
-        void PlayLevelComplete() const;
-        void PlayPreviousLevel() const;
-        void PlayNextLevel() const;
-    };
+#ifdef LOAD_AND_LOCK_USE_RAYLIB
+    using AudioPlayer = RaylibAudioPlayer;
+#else
+    using AudioPlayer = BeepAudioPlayer;
+#endif
 }

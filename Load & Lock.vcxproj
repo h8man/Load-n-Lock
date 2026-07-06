@@ -135,7 +135,8 @@
   <ItemGroup>
     <ClCompile Include="Load &amp; Lock.cpp" />
     <ClCompile Include="src\assets\AssetManager.cpp" />
-    <ClCompile Include="src\audio\AudioPlayer.cpp" />
+    <ClCompile Include="src\audio\BeepAudioPlayer.cpp" />
+    <ClCompile Include="src\audio\RaylibAudioPlayer.cpp" />
     <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\game\GameLogic.cpp" />
     <ClCompile Include="src\input\InputHandler.cpp" />
@@ -146,6 +147,8 @@
   <ItemGroup>
     <ClInclude Include="src\assets\AssetManager.h" />
     <ClInclude Include="src\audio\AudioPlayer.h" />
+    <ClInclude Include="src\audio\BeepAudioPlayer.h" />
+    <ClInclude Include="src\audio\RaylibAudioPlayer.h" />
     <ClInclude Include="src\core\Application.h" />
     <ClInclude Include="src\game\GameLogic.h" />
     <ClInclude Include="src\input\InputHandler.h" />
