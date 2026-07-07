@@ -1,4 +1,10 @@
 <Project>
+  <PropertyGroup>
+    <!-- Set to Console or Windows -->
+    <LoadAndLockSubsystem Condition="'$(LoadAndLockSubsystem)' == ''">Windows</LoadAndLockSubsystem>
+    <LoadAndLockSubsystemDefine Condition="'$(LoadAndLockSubsystem)' == 'Windows'">_WINDOWS</LoadAndLockSubsystemDefine>
+    <LoadAndLockSubsystemDefine Condition="'$(LoadAndLockSubsystem)' != 'Windows'">_CONSOLE</LoadAndLockSubsystemDefine>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Platform)' == 'x64'">
     <ClCompile>
       <PreprocessorDefinitions>LOAD_AND_LOCK_USE_RAYLIB;USE_LIBTYPE_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>

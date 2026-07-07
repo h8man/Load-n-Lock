@@ -88,7 +88,7 @@ namespace
             {
                 return;
             }
-
+            SetMasterVolume(0.8f);
             static constexpr Tone moveTones[] = { { 880, 35 } };
             static constexpr Tone levelCompleteTones[] =
             {
