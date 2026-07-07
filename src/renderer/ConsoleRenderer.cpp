@@ -37,12 +37,12 @@ namespace
 
 namespace renderer
 {
-    void ConsoleRenderer::Render(const game::GameLogic& gameState, const std::string& levelName, int levelNumber, int levelCount) const
+    void ConsoleRenderer::Render(const game::GameLogic& gameState) const
     {
         ClearConsole();
 
         std::cout << "Load & Lock - Console Sokoban\n";
-        std::cout << "Level " << levelNumber << " / " << levelCount << ": " << levelName << "\n";
+        std::cout << "Level " << gameState.GetLevelNumber() << " / " << gameState.GetLevelCount() << ": " << gameState.GetLevelName() << "\n";
 
         for (int y = 0; y < gameState.GetHeight(); ++y)
         {
@@ -59,7 +59,15 @@ namespace renderer
         }
 
         std::cout << "Moves: " << gameState.GetMoveCount() << '\n';
+        std::cout << "Level Score: " << gameState.GetLevelScore() << "\n";
+        std::cout << "Total Score: " << gameState.GetTotalScore() << "\n";
         std::cout << "Controls: WASD or Arrow Keys to move, N/P to change level, R to reset, Q to quit.\n";
+
+        if (gameState.ShouldShowCompletionScore())
+        {
+            std::cout << "\nStage clear! Score: " << gameState.GetCompletedLevelScore() << "\n";
+            std::cout << "Running total: " << gameState.GetTotalScore() << "\n";
+        }
 
         if (gameState.IsComplete())
         {

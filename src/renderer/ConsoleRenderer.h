@@ -12,7 +12,7 @@ namespace renderer
     class ConsoleRenderer
     {
     public:
-        void Render(const game::GameLogic& gameState, const std::string& levelName, int levelNumber, int levelCount) const;
+        void Render(const game::GameLogic& gameState) const;
 
     private:
         void ClearConsole() const;

@@ -22,7 +22,7 @@ namespace renderer
         RaylibRenderer& operator=(const RaylibRenderer&) = delete;
 
         bool IsOpen() const;
-        void Render(const game::GameLogic& gameState, const std::string& levelName, int levelNumber, int levelCount) const;
+        void Render(const game::GameLogic& gameState) const;
 
     private:
         struct Impl;

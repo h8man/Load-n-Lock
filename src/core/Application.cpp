@@ -13,13 +13,19 @@
 #endif
 
 #include <iostream>
+#include <chrono>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace core
 {
     int Application::Run() const
     {
+        using Clock = std::chrono::steady_clock;
+
+        constexpr auto kCompletionScoreDisplayDuration = std::chrono::milliseconds(1500);
+
         audio::AudioPlayer audioPlayer;
         assets::AssetManager assetManager;
         std::vector<assets::LevelData> levels;
@@ -32,11 +38,52 @@ namespace core
 
         game::GameLogic gameState;
         std::size_t currentLevelIndex = 0;
+        std::vector<int> bestLevelScores(levels.size(), 0);
+        int totalScore = 0;
+        int lastCompletedLevelScore = 0;
+        bool hasProcessedCompletionForCurrentLevel = false;
+        bool showCompletionScore = false;
+        bool shouldAdvanceToNextLevel = false;
+        Clock::time_point completionScoreDisplayUntil = Clock::time_point::min();
+        bool wasLevelComplete = false;
+
+        const auto calculateLevelScore = [&](int moveCount)
+        {
+            return std::max(100, 2500 - (moveCount * 25));
+        };
+
+        const auto resetCompletionState = [&]()
+        {
+            hasProcessedCompletionForCurrentLevel = false;
+            showCompletionScore = false;
+            shouldAdvanceToNextLevel = false;
+            lastCompletedLevelScore = 0;
+            completionScoreDisplayUntil = Clock::time_point::min();
+            wasLevelComplete = gameState.IsComplete();
+        };
 
         const auto loadCurrentLevel = [&]() -> bool
         {
             error.clear();
-            return gameState.Load(levels[currentLevelIndex].rows, error);
+            if (!gameState.Load(levels[currentLevelIndex].rows, error))
+            {
+                return false;
+            }
+
+            gameState.SetLevelContext(
+                levels[currentLevelIndex].name,
+                static_cast<int>(currentLevelIndex + 1),
+                static_cast<int>(levels.size()));
+            return true;
+        };
+
+        const auto updateScoreContext = [&]()
+        {
+            gameState.SetScoreContext(
+                bestLevelScores[currentLevelIndex],
+                totalScore,
+                showCompletionScore,
+                lastCompletedLevelScore);
         };
 
         if (!loadCurrentLevel())
@@ -52,8 +99,6 @@ namespace core
         input::InputHandler inputHandler;
         renderer::ConsoleRenderer renderer;
 #endif
-        bool wasLevelComplete = gameState.IsComplete();
-        bool shouldAdvanceToNextLevel = false;
 
 #ifdef LOAD_AND_LOCK_USE_RAYLIB
         while (renderer.IsOpen())
@@ -61,28 +106,46 @@ namespace core
         while (true)
 #endif
         {
-            renderer.Render(
-                gameState,
-                levels[currentLevelIndex].name,
-                static_cast<int>(currentLevelIndex + 1),
-                static_cast<int>(levels.size()));
+            updateScoreContext();
+            renderer.Render(gameState);
 
-            if (!shouldAdvanceToNextLevel && wasLevelComplete)
+            if (!hasProcessedCompletionForCurrentLevel && wasLevelComplete)
             {
+                const int levelScore = calculateLevelScore(gameState.GetMoveCount());
+                if (levelScore > bestLevelScores[currentLevelIndex])
+                {
+                    totalScore += levelScore - bestLevelScores[currentLevelIndex];
+                    bestLevelScores[currentLevelIndex] = levelScore;
+                }
+
+                lastCompletedLevelScore = levelScore;
                 audioPlayer.PlayLevelComplete();
-                shouldAdvanceToNextLevel = wasLevelComplete = gameState.IsComplete();
+                showCompletionScore = true;
+                shouldAdvanceToNextLevel = currentLevelIndex + 1 < levels.size();
+                hasProcessedCompletionForCurrentLevel = true;
+                completionScoreDisplayUntil = Clock::now() + kCompletionScoreDisplayDuration;
             }
 
-            if (shouldAdvanceToNextLevel && !audioPlayer.IsLevelCompletePlaying())
+            if (showCompletionScore)
             {
-                shouldAdvanceToNextLevel = false;
-                ++currentLevelIndex;
-                if (!loadCurrentLevel())
+                if (Clock::now() < completionScoreDisplayUntil || audioPlayer.IsLevelCompletePlaying())
                 {
-                    std::cerr << "Failed to initialize level: " << error << '\n';
-                    return 1;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(16));
+                    continue;
                 }
-                wasLevelComplete = gameState.IsComplete();
+
+                showCompletionScore = false;
+                if (shouldAdvanceToNextLevel)
+                {
+                    ++currentLevelIndex;
+                    if (!loadCurrentLevel())
+                    {
+                        std::cerr << "Failed to initialize level: " << error << '\n';
+                        return 1;
+                    }
+
+                    resetCompletionState();
+                }
             }
 
             const auto moveWithFeedback = [&](int dx, int dy)
@@ -98,11 +161,6 @@ namespace core
             };
 
             const input::Command command = inputHandler.ReadCommand();
-            if (shouldAdvanceToNextLevel && command != input::Command::Quit)
-            {
-                continue;
-            }
-
             switch (command)
             {
             case input::Command::MoveUp:
@@ -138,8 +196,9 @@ namespace core
                         std::cerr << "Failed to initialize level: " << error << '\n';
                         return 1;
                     }
+
+                    resetCompletionState();
                     audioPlayer.PlayPreviousLevel();
-                    wasLevelComplete = gameState.IsComplete();
                 }
                 break;
             case input::Command::NextLevel:
@@ -152,13 +211,13 @@ namespace core
                         return 1;
                     }
 
+                    resetCompletionState();
                     audioPlayer.PlayNextLevel();
-                    wasLevelComplete = gameState.IsComplete();
                 }
                 break;
             case input::Command::Reset:
                 gameState.Reset();
-                wasLevelComplete = gameState.IsComplete();
+                resetCompletionState();
                 break;
             case input::Command::Quit:
                 return 0;

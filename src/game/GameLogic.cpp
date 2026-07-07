@@ -163,6 +163,21 @@ namespace game
         return true;
     }
 
+    void GameLogic::SetLevelContext(const std::string& levelName, int levelNumber, int levelCount)
+    {
+        levelName_ = levelName;
+        levelNumber_ = levelNumber;
+        levelCount_ = levelCount;
+    }
+
+    void GameLogic::SetScoreContext(int levelScore, int totalScore, bool showCompletionScore, int completedLevelScore)
+    {
+        levelScore_ = levelScore;
+        totalScore_ = totalScore;
+        showCompletionScore_ = showCompletionScore;
+        completedLevelScore_ = completedLevelScore;
+    }
+
     int GameLogic::GetWidth() const
     {
         return width_;
@@ -192,6 +207,41 @@ namespace game
         }
 
         return tiles_[y][x];
+    }
+
+    const std::string& GameLogic::GetLevelName() const
+    {
+        return levelName_;
+    }
+
+    int GameLogic::GetLevelNumber() const
+    {
+        return levelNumber_;
+    }
+
+    int GameLogic::GetLevelCount() const
+    {
+        return levelCount_;
+    }
+
+    int GameLogic::GetLevelScore() const
+    {
+        return levelScore_;
+    }
+
+    int GameLogic::GetTotalScore() const
+    {
+        return totalScore_;
+    }
+
+    bool GameLogic::ShouldShowCompletionScore() const
+    {
+        return showCompletionScore_;
+    }
+
+    int GameLogic::GetCompletedLevelScore() const
+    {
+        return completedLevelScore_;
     }
 
     bool GameLogic::IsInside(const Position& position) const

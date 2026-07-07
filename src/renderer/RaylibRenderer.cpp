@@ -151,7 +151,7 @@ namespace renderer
         return IsWindowReady() && !WindowShouldClose();
     }
 
-    void RaylibRenderer::Render(const game::GameLogic& gameState, const std::string& levelName, int levelNumber, int levelCount) const
+    void RaylibRenderer::Render(const game::GameLogic& gameState) const
     {
         if (IsKeyPressed(KEY_G))
         {
@@ -162,7 +162,7 @@ namespace renderer
         ClearBackground(Color{ 24, 28, 36, 255 });
 
         DrawText("Load & Lock", 24, 24, 36, RAYWHITE);
-        DrawText(TextFormat("Level %d / %d: %s", levelNumber, levelCount, levelName.c_str()), 24, 68, 24, LIGHTGRAY);
+        DrawText(TextFormat("Level %d / %d: %s", gameState.GetLevelNumber(), gameState.GetLevelCount(), gameState.GetLevelName().c_str()), 24, 68, 24, LIGHTGRAY);
 
         const int fieldWidth = std::max(1, gameState.GetWidth());
         const int fieldHeight = std::max(1, gameState.GetHeight());
@@ -234,6 +234,8 @@ namespace renderer
         }
 
         DrawText(TextFormat("Moves: %d", gameState.GetMoveCount()), 24, GetScreenHeight() - 84, 24, RAYWHITE);
+        DrawText(TextFormat("Level Score: %d", gameState.GetLevelScore()), 220, GetScreenHeight() - 84, 24, RAYWHITE);
+        DrawText(TextFormat("Total Score: %d", gameState.GetTotalScore()), 440, GetScreenHeight() - 84, 24, RAYWHITE);
         DrawText("Controls: WASD/Arrows move, N/P level, R reset, G toggle graphics, Q/Esc quit", 24, GetScreenHeight() - 50, 20, LIGHTGRAY);
 
         if (!impl_->hasSprites)
@@ -247,6 +249,26 @@ namespace renderer
         else if (gameState.IsComplete())
         {
             DrawText("Level complete. Press N, P, R or Q.", 24, GetScreenHeight() - 114, 20, Color{ 120, 230, 140, 255 });
+        }
+
+        if (gameState.ShouldShowCompletionScore())
+        {
+            const char* title = gameState.GetLevelNumber() == gameState.GetLevelCount() ? "Final Stage Clear!" : "Stage Clear!";
+            const char* stageScoreText = TextFormat("Stage Score: %d", gameState.GetCompletedLevelScore());
+            const char* totalScoreText = TextFormat("Total Score: %d", gameState.GetTotalScore());
+            const int panelWidth = 420;
+            const int panelHeight = 130;
+            const int panelX = (GetScreenWidth() - panelWidth) / 2;
+            const int panelY = 28;
+
+            DrawRectangleRounded(
+                Rectangle{ static_cast<float>(panelX), static_cast<float>(panelY), static_cast<float>(panelWidth), static_cast<float>(panelHeight) },
+                0.12f,
+                10,
+                Fade(BLACK, 0.8f));
+            DrawText(title, panelX + 30, panelY + 18, 30, Color{ 255, 230, 120, 255 });
+            DrawText(stageScoreText, panelX + 30, panelY + 62, 28, RAYWHITE);
+            DrawText(totalScoreText, panelX + 30, panelY + 94, 24, Color{ 120, 230, 140, 255 });
         }
 
         EndDrawing();
