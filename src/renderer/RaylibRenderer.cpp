@@ -391,7 +391,7 @@ namespace renderer
             { { 980.0f, 310.0f }, 0.78f, 124.0f, Color{ 255, 230, 120, 255 } }
         };
 
-        constexpr float kBurstDuration = 0.26f;
+        constexpr float kBurstDuration = 0.16f;
         for (const Firework& firework : fireworks)
         {
             const float localProgress = Clamp01((progress - firework.startProgress) / kBurstDuration);
@@ -408,23 +408,25 @@ namespace renderer
             {
                 const float angle = (static_cast<float>(sparkIndex) / static_cast<float>(sparkCount)) * 6.28318530718f;
                 const Vector2 direction = { std::cos(angle), std::sin(angle) };
+                const float sparkLength = 0.02f + localProgress * 0.35f;
                 const Vector2 inner =
                 {
-                    firework.center.x + direction.x * burstRadius * 0.28f,
-                    firework.center.y + direction.y * burstRadius * 0.28f
+                    firework.center.x + direction.x * burstRadius * 0.28f + sparkLength * direction.x * burstRadius,
+                    firework.center.y + direction.y * burstRadius * 0.28f + sparkLength * direction.y * burstRadius
                 };
                 const Vector2 outer =
                 {
                     firework.center.x + direction.x * burstRadius,
                     firework.center.y + direction.y * burstRadius
                 };
-                DrawLineEx(inner, outer, 2.5f + intensity * 1.6f, Fade(firework.color, burstAlpha));
+                DrawLineEx(inner, outer, 2.5f + (1.0f - localProgress) * intensity* 1.6f, Fade(firework.color, burstAlpha));
 
-                const float emberRadius = burstRadius * (1.22f + localProgress * 0.88f);
+                const float emberRadius = burstRadius * (1.22f + localProgress * 0.98f);
+                const float gravity = 0.28f + localProgress * localProgress * localProgress * 98.5f;
                 const Vector2 ember =
                 {
                     firework.center.x + direction.x * emberRadius,
-                    firework.center.y + direction.y * emberRadius
+                    firework.center.y + direction.y * emberRadius + gravity
                 };
                 const Color emberColor = LerpColor(WHITE, firework.color, localProgress);
                 DrawCircleV(ember, 1.5f + intensity * 1.8f, Fade(emberColor, burstAlpha * 0.8f));
