@@ -1,5 +1,5 @@
 <Project>
-  <Target Name="LoadAndLockCopyRaylibDll" AfterTargets="Build" Condition="'$(Platform)' == 'x64' and Exists('$(MSBuildThisFileDirectory)raylib\lib\raylib.dll')">
+  <Target Name="LoadAndLockCopyRaylibDll" AfterTargets="Build" Condition="'$(Platform)' == 'x64' and '$(LoadAndLockRenderer)' == 'Raylib' and Exists('$(MSBuildThisFileDirectory)raylib\lib\raylib.dll')">
     <Copy SourceFiles="$(MSBuildThisFileDirectory)raylib\lib\raylib.dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
   </Target>
 </Project>

@@ -245,5 +245,6 @@ namespace core
                 break;
             }
         }
+        return 0;
     }
 }

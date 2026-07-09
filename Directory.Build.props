@@ -2,10 +2,12 @@
   <PropertyGroup>
     <!-- Set to Console or Windows -->
     <LoadAndLockSubsystem Condition="'$(LoadAndLockSubsystem)' == ''">Windows</LoadAndLockSubsystem>
+    <LoadAndLockRenderer Condition="'$(LoadAndLockRenderer)' == '' and '$(Platform)' == 'x64'">Raylib</LoadAndLockRenderer>
+    <LoadAndLockRenderer Condition="'$(LoadAndLockRenderer)' == ''">Console</LoadAndLockRenderer>
     <LoadAndLockSubsystemDefine Condition="'$(LoadAndLockSubsystem)' == 'Windows'">_WINDOWS</LoadAndLockSubsystemDefine>
     <LoadAndLockSubsystemDefine Condition="'$(LoadAndLockSubsystem)' != 'Windows'">_CONSOLE</LoadAndLockSubsystemDefine>
   </PropertyGroup>
-  <ItemDefinitionGroup Condition="'$(Platform)' == 'x64'">
+  <ItemDefinitionGroup Condition="'$(Platform)' == 'x64' and '$(LoadAndLockRenderer)' == 'Raylib'">
     <ClCompile>
       <PreprocessorDefinitions>LOAD_AND_LOCK_USE_RAYLIB;USE_LIBTYPE_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)raylib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

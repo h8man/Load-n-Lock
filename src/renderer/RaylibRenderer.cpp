@@ -44,6 +44,27 @@ namespace
         return candidates[0].string();
     }
 
+    std::string FindWindowIconPath()
+    {
+        const fs::path candidates[] =
+        {
+            "L&L.png",
+            "./L&L.png",
+            "../L&L.png",
+            "../../L&L.png"
+        };
+
+        for (const fs::path& candidate : candidates)
+        {
+            if (fs::exists(candidate) && fs::is_regular_file(candidate))
+            {
+                return candidate.string();
+            }
+        }
+
+        return std::string();
+    }
+
     float Clamp01(float value)
     {
         return std::clamp(value, 0.0f, 1.0f);
@@ -152,6 +173,18 @@ namespace renderer
     {
         SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
         InitWindow(kWindowWidth, kWindowHeight, "Load & Lock");
+
+        const std::string iconPath = FindWindowIconPath();
+        if (!iconPath.empty())
+        {
+            Image icon = LoadImage(iconPath.c_str());
+            if (icon.data != nullptr)
+            {
+                SetWindowIcon(icon);
+                UnloadImage(icon);
+            }
+        }
+
         SetTargetFPS(60);
 
         impl_->spriteSheetPath = FindSpriteSheetPath();

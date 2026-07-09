@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -105,13 +105,10 @@
       <PreprocessorDefinitions>_DEBUG;$(LoadAndLockSubsystemDefine);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./raylib/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>$(LoadAndLockSubsystem)</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>./raylib/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>raylib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -123,27 +120,24 @@
       <PreprocessorDefinitions>NDEBUG;$(LoadAndLockSubsystemDefine);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>./raylib/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>$(LoadAndLockSubsystem)</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>./raylib/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>raylib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Load &amp; Lock.cpp" />
     <ClCompile Include="src\assets\AssetManager.cpp" />
-    <ClCompile Include="src\audio\BeepAudioPlayer.cpp" />
-    <ClCompile Include="src\audio\RaylibAudioPlayer.cpp" />
+    <ClCompile Include="src\audio\BeepAudioPlayer.cpp" Condition="'$(LoadAndLockRenderer)' != 'Raylib'" />
+    <ClCompile Include="src\audio\RaylibAudioPlayer.cpp" Condition="'$(LoadAndLockRenderer)' == 'Raylib'" />
     <ClCompile Include="src\core\Application.cpp" />
     <ClCompile Include="src\game\Cutscene.cpp" />
     <ClCompile Include="src\game\GameLogic.cpp" />
     <ClCompile Include="src\input\InputHandler.cpp" />
-    <ClCompile Include="src\input\RaylibInputHandler.cpp" />
-    <ClCompile Include="src\renderer\ConsoleRenderer.cpp" />
-    <ClCompile Include="src\renderer\RaylibRenderer.cpp" />
+    <ClCompile Include="src\input\RaylibInputHandler.cpp" Condition="'$(LoadAndLockRenderer)' == 'Raylib'" />
+    <ClCompile Include="src\renderer\ConsoleRenderer.cpp" Condition="'$(LoadAndLockRenderer)' != 'Raylib'" />
+    <ClCompile Include="src\renderer\RaylibRenderer.cpp" Condition="'$(LoadAndLockRenderer)' == 'Raylib'" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
@@ -170,4 +164,3 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
-

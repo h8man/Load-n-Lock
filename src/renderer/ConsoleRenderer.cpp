@@ -63,20 +63,26 @@ namespace renderer
             }
         }
 
-        std::cout << "Moves: " << gameState.GetMoveCount() << '\n';
-        std::cout << "Level Score: " << gameState.GetLevelScore() << "\n";
-        std::cout << "Total Score: " << gameState.GetTotalScore() << "\n";
-        std::cout << "Controls: WASD or Arrow Keys to move, N/P to change level, R to reset, Q to quit.\n";
-
         if (gameState.ShouldShowCompletionScore())
         {
-            std::cout << "\nStage clear! Score: " << gameState.GetCompletedLevelScore() << "\n";
-            std::cout << "Running total: " << gameState.GetTotalScore() << "\n";
-        }
+            std::cout << "Stages cleared! Total Score: " << gameState.GetTotalScore() << "\n";
 
-        if (gameState.IsComplete())
+            std::cout << "Game complete. Press Q to quit.\n";
+        }
+        else
         {
-            std::cout << "Level complete. Press N for next level, P for previous level, R to restart, or Q to quit.\n";
+            std::cout << "Moves: " << gameState.GetMoveCount() << " / ";
+            std::cout << "Level Score: " << gameState.GetLevelScore() << " / ";
+            std::cout << "Total Score: " << gameState.GetTotalScore() << "\n";
+
+            if (gameState.IsComplete())
+            {
+                std::cout << "Level complete. Press N for next level, P for previous level, R to restart, or Q to quit.\n";
+            }
+            else
+            {
+                std::cout << "Controls: WASD or Arrow Keys to move, N/P to change level, R to reset, Q to quit.\n";
+            }
         }
     }
 
