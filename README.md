@@ -6,7 +6,7 @@
 
 Play in browser:
 
-`https://h8man.github.io/Load-n-Lock/`
+https://h8man.github.io/Load-n-Lock/
 
 ## Project layout
 
