@@ -25,6 +25,7 @@ namespace game
         void SetLevelContext(const std::string& levelName, int levelNumber, int levelCount);
         void SetScoreContext(int levelScore, int totalScore, bool showCompletionScore, int completedLevelScore);
         void SetCutsceneState(const CutsceneState& cutsceneState);
+        void SetStatusMessage(const std::string& statusMessage);
         int GetWidth() const;
         int GetHeight() const;
         int GetMoveCount() const;
@@ -37,6 +38,7 @@ namespace game
         int GetTotalScore() const;
         bool ShouldShowCompletionScore() const;
         int GetCompletedLevelScore() const;
+        const std::string& GetStatusMessage() const;
         const CutsceneState& GetCutsceneState() const;
 
     private:
@@ -60,6 +62,7 @@ namespace game
         int totalScore_ = 0;
         bool showCompletionScore_ = false;
         int completedLevelScore_ = 0;
+        std::string statusMessage_;
         CutsceneState cutsceneState_;
     };
 }

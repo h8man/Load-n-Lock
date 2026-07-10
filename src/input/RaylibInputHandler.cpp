@@ -6,46 +6,70 @@
 
 namespace input
 {
-    Command RaylibInputHandler::ReadCommand() const
+    static Command cachedCommand = Command::None;
+
+    void RaylibInputHandler::CachePendingInput()
     {
+        if (cachedCommand != Command::None)
+        {
+            return;
+        }
+
         if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_W))
         {
-            return Command::MoveUp;
+            cachedCommand = Command::MoveUp;
+            return;
         }
 
         if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_S))
         {
-            return Command::MoveDown;
+            cachedCommand = Command::MoveDown;
+            return;
         }
 
         if (IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_A))
         {
-            return Command::MoveLeft;
+            cachedCommand = Command::MoveLeft;
+            return;
         }
 
         if (IsKeyPressed(KEY_RIGHT) || IsKeyPressed(KEY_D))
         {
-            return Command::MoveRight;
+            cachedCommand = Command::MoveRight;
+            return;
         }
 
         if (IsKeyPressed(KEY_P))
         {
-            return Command::PreviousLevel;
+            cachedCommand = Command::PreviousLevel;
+            return;
         }
 
         if (IsKeyPressed(KEY_N))
         {
-            return Command::NextLevel;
+            cachedCommand = Command::NextLevel;
+            return;
         }
 
         if (IsKeyPressed(KEY_R))
         {
-            return Command::Reset;
+            cachedCommand = Command::Reset;
+            return;
         }
 
-        if (WindowShouldClose() || IsKeyPressed(KEY_Q) || IsKeyPressed(KEY_ESCAPE))
+        if (IsKeyPressed(KEY_Q) || IsKeyPressed(KEY_ESCAPE))
         {
-            return Command::Quit;
+            cachedCommand = Command::Quit;
+        }
+    }
+
+    Command RaylibInputHandler::ReadCommand() const
+    {
+        if (cachedCommand != Command::None)
+        {
+            const Command command = cachedCommand;
+            cachedCommand = Command::None;
+            return command;
         }
 
         return Command::None;

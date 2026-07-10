@@ -74,6 +74,7 @@ namespace
 
     struct AudioState
     {
+        bool initializationAttempted = false;
         bool isReady = false;
         Sound move = { 0 };
         Sound levelComplete = { 0 };
@@ -81,8 +82,14 @@ namespace
         Sound previousLevel = { 0 };
         Sound nextLevel = { 0 };
 
-        AudioState()
+        void Initialize()
         {
+            if (initializationAttempted)
+            {
+                return;
+            }
+
+            initializationAttempted = true;
             InitAudioDevice();
             isReady = IsAudioDeviceReady();
             if (!isReady)
@@ -169,8 +176,14 @@ namespace
         return state;
     }
 
+    void EnsureAudioInitialized()
+    {
+        GetAudioState().Initialize();
+    }
+
     void PlaySoundEffect(Sound& sound)
     {
+        EnsureAudioInitialized();
         AudioState& state = GetAudioState();
         if (!state.isReady || sound.frameCount == 0)
         {
@@ -184,6 +197,11 @@ namespace
 
 namespace audio
 {
+    void RaylibAudioPlayer::Initialize() const
+    {
+        EnsureAudioInitialized();
+    }
+
     void RaylibAudioPlayer::PlayMove() const
     {
         AudioState& state = GetAudioState();

@@ -1,145 +1,41 @@
 <!doctype html>
 <html lang="en-us">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Load &amp; Lock</title>
-  <style>
-    :root {
-      color-scheme: dark;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #10141c;
-      color: #f2f4f8;
-    }
+    <meta charset="utf-8">
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="L&L.ico">
+    <link rel="icon" type="image/png" sizes="256x256" href="L&L.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Load &amp; Lock</title>
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+            background: #111;
+        }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at top, #1a2330 0%, #10141c 60%);
-    }
-
-    .page {
-      width: min(100%, 1360px);
-      padding: 24px;
-      box-sizing: border-box;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-      font-weight: 700;
-    }
-
-    p {
-      margin: 0 0 16px;
-      color: #c8d0dc;
-    }
-
-    #status {
-      min-height: 24px;
-      margin-bottom: 12px;
-      color: #ffd27a;
-    }
-
-    #progress {
-      width: 100%;
-      height: 16px;
-      margin-bottom: 18px;
-    }
-
-    #canvas {
-      display: block;
-      width: 100%;
-      max-width: 1280px;
-      aspect-ratio: 1280 / 900;
-      border: 1px solid #334154;
-      border-radius: 10px;
-      background: #000;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
-      outline: none;
-    }
-
-    .hint {
-      margin-top: 12px;
-      font-size: 14px;
-      color: #94a3b8;
-    }
-  </style>
+        #canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            outline: none;
+            background: #000;
+        }
+    </style>
 </head>
 <body>
-  <main class="page">
-    <h1>Load &amp; Lock</h1>
-    <p>WASM build powered by Emscripten and raylib.</p>
-    <div id="status">Downloading...</div>
-    <progress id="progress" max="100" value="0" hidden></progress>
-    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
-    <p class="hint">Click the page before using keyboard controls or audio.</p>
-  </main>
+    <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
 
-  <script>
-    const statusElement = document.getElementById('status');
-    const progressElement = document.getElementById('progress');
+    <script>
+        var Module = {
+            canvas: (() => {
+                const canvas = document.getElementById("canvas");
 
-    var Module = {
-      preRun: [],
-      postRun: [],
-      canvas: (() => {
-        const canvas = document.getElementById('canvas');
-        canvas.addEventListener('webglcontextlost', (event) => {
-          event.preventDefault();
-          Module.setStatus('WebGL context lost. Reload the page.');
-        }, false);
-        return canvas;
-      })(),
-      setStatus: (text) => {
-        if (!text) {
-          statusElement.textContent = '';
-          progressElement.hidden = true;
-          return;
-        }
 
-        const match = text.match(/^(.*)\((\d+)(?:\.(\d+))?\/(\d+)\)$/);
-        if (match) {
-          const current = Number(match[2]);
-          const total = Number(match[4]);
-          progressElement.hidden = false;
-          progressElement.max = total;
-          progressElement.value = current;
-          statusElement.textContent = match[1].trim();
-          return;
-        }
-
-        progressElement.hidden = true;
-        statusElement.textContent = text;
-      },
-      monitorRunDependencies: (left) => {
-        if (left > 0) {
-          Module.setStatus(`Preparing... (${Module.totalDependencies - left}/${Module.totalDependencies})`);
-        } else {
-          Module.setStatus('Running');
-        }
-      },
-      totalDependencies: 0
-    };
-
-    Module.monitorRunDependencies = (left) => {
-      Module.totalDependencies = Math.max(Module.totalDependencies, left);
-      if (left > 0) {
-        Module.setStatus(`Preparing... (${Module.totalDependencies - left}/${Module.totalDependencies})`);
-      } else {
-        Module.setStatus('Running');
-      }
-    };
-
-    window.onerror = (event) => {
-      Module.setStatus('Exception thrown. See browser console for details.');
-      console.error(event);
-    };
-  </script>
-  {{{ SCRIPT }}}
+                return canvas;
+            })(),
+        };
+    </script>
+    {{{ SCRIPT }}}
 </body>
 </html>

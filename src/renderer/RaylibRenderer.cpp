@@ -3,6 +3,7 @@
 #include "RaylibRenderer.h"
 
 #include "../game/GameLogic.h"
+#include "../input/RaylibInputHandler.h"
 
 #include <algorithm>
 #include <cmath>
@@ -213,6 +214,11 @@ namespace renderer
         return IsWindowReady() && !WindowShouldClose();
     }
 
+    void RaylibRenderer::ToggleGraphicsMode()
+    {
+        impl_->useFallbackGraphics = !impl_->useFallbackGraphics;
+    }
+
     RaylibRenderer::RenderLayout RaylibRenderer::CalculateLayout(const game::GameLogic& gameState) const
     {
         RenderLayout layout;
@@ -363,6 +369,29 @@ namespace renderer
         DrawText(title, panelX + 30, panelY + 18, 30, Color{ 255, 230, 120, 255 });
         DrawText(stageScoreText, panelX + 30, panelY + 62, 28, RAYWHITE);
         DrawText(totalScoreText, panelX + 30, panelY + 94, 24, Color{ 120, 230, 140, 255 });
+    }
+
+    void RaylibRenderer::DrawStatusOverlay(const game::GameLogic& gameState) const
+    {
+        const std::string& statusMessage = gameState.GetStatusMessage();
+        if (statusMessage.empty())
+        {
+            return;
+        }
+
+        const int panelWidth = 420;
+        const int panelHeight = 110;
+        const int panelX = (GetScreenWidth() - panelWidth) / 2;
+        const int panelY = (GetScreenHeight() - panelHeight) / 2;
+
+        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.35f));
+        DrawRectangleRounded(
+            Rectangle{ static_cast<float>(panelX), static_cast<float>(panelY), static_cast<float>(panelWidth), static_cast<float>(panelHeight) },
+            0.12f,
+            10,
+            Fade(BLACK, 0.86f));
+        DrawText("Please wait", panelX + 30, panelY + 20, 30, Color{ 255, 230, 120, 255 });
+        DrawText(statusMessage.c_str(), panelX + 30, panelY + 62, 24, RAYWHITE);
     }
 
     void RaylibRenderer::DrawFireworks(float progress) const
@@ -578,6 +607,10 @@ namespace renderer
         {
             DrawFinalScoreOverlay(gameState);
         }
+
+        DrawStatusOverlay(gameState);
+
+        input::RaylibInputHandler::CachePendingInput();
 
         EndDrawing();
     }

@@ -25,6 +25,7 @@ namespace renderer
 
         bool IsOpen() const;
         void Render(const game::GameLogic& gameState) const;
+        void ToggleGraphicsMode();
 
     private:
         struct RenderLayout
@@ -53,6 +54,7 @@ namespace renderer
         void DrawBoard(const game::GameLogic& gameState, const RenderLayout& layout, std::vector<AnimatedCrate>& animatedCrates) const;
         void DrawHud(const game::GameLogic& gameState) const;
         void DrawCompletionScore(const game::GameLogic& gameState) const;
+        void DrawStatusOverlay(const game::GameLogic& gameState) const;
         void DrawFireworks(float progress) const;
         void DrawFinalCutscene(const game::GameLogic& gameState, const RenderLayout& layout, const std::vector<AnimatedCrate>& animatedCrates) const;
         void DrawFinalScoreOverlay(const game::GameLogic& gameState) const;

@@ -9,6 +9,7 @@ namespace input
     class RaylibInputHandler
     {
     public:
+        static void CachePendingInput();
         Command ReadCommand() const;
     };
 }

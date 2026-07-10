@@ -186,6 +186,11 @@ namespace game
         SetCutsceneOverlay(cutsceneState_, cutsceneState_.isOverlayVisible, cutsceneState_.overlayOpacity);
     }
 
+    void GameLogic::SetStatusMessage(const std::string& statusMessage)
+    {
+        statusMessage_ = statusMessage;
+    }
+
     int GameLogic::GetWidth() const
     {
         return width_;
@@ -255,6 +260,11 @@ namespace game
     int GameLogic::GetCompletedLevelScore() const
     {
         return completedLevelScore_;
+    }
+
+    const std::string& GameLogic::GetStatusMessage() const
+    {
+        return statusMessage_;
     }
 
     const CutsceneState& GameLogic::GetCutsceneState() const

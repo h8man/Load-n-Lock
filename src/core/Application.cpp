@@ -94,12 +94,19 @@ namespace core
             return 1;
         }
 
+        updateScoreContext();
+
 #ifdef LOAD_AND_LOCK_USE_RAYLIB
         input::RaylibInputHandler inputHandler;
         renderer::RaylibRenderer renderer;
+        gameState.SetStatusMessage("Initializing audio...");
+        renderer.Render(gameState);
+        audioPlayer.Initialize();
+        gameState.SetStatusMessage("");
 #else
         input::InputHandler inputHandler;
         renderer::ConsoleRenderer renderer;
+        audioPlayer.Initialize();
 #endif
 
         while (renderer.IsOpen())
