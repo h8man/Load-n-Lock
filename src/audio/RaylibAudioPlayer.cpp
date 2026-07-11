@@ -32,7 +32,7 @@ namespace
             for (int sampleIndex = 0; sampleIndex < sampleCount; ++sampleIndex)
             {
                 const float time = static_cast<float>(sampleIndex) / static_cast<float>(kSampleRate);
-                const float phase = std::sinf(kTwoPi * static_cast<float>(tones[toneIndex].frequency) * time);
+                const float phase = std::sin(kTwoPi * static_cast<float>(tones[toneIndex].frequency) * time);
                 const float wave = phase >= 0.0f ? 1.0f : -1.0f;
 
                 float envelope = 1.0f;

@@ -35,6 +35,44 @@ Console build:
 msbuild ".\Load & Lock.sln" /t:Build /p:Configuration=Debug /p:Platform=x64 /p:LoadAndLockRenderer=Console /p:LoadAndLockSubsystem=Console
 ```
 
+## Linux desktop build
+
+A native Linux desktop build is available through `Make-lnx`.
+
+### Requirements
+
+- `g++` with C++17 support
+- `make`
+- `raylib` in raylib-lnx folder
+
+### Build
+
+Release build:
+
+```bash
+make -f Make-lnx
+```
+
+Debug build:
+
+```bash
+make -f Make-lnx debug
+```
+
+The output is written to:
+
+```text
+build/linux/load-n-lock
+```
+
+Runtime assets are copied into `build/linux`, so the executable can be launched from there.
+
+### Run
+
+```bash
+make -f Make-lnx run
+```
+
 ## WebAssembly build with Emscripten
 
 A Linux-oriented `Makefile` is included for `emsdk` builds.
