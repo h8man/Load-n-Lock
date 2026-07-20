@@ -1,4 +1,4 @@
-const CACHE_NAME = "load-and-lock-v2";
+const CACHE_NAME = "load-and-lock-v11";
 
 const CORE_ASSETS = [
     "./",
