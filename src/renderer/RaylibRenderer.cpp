@@ -24,6 +24,20 @@ namespace
     constexpr float kTopPadding = 120.0f;
     constexpr float kBottomPadding = 120.0f;
 
+    float GetHudScale()
+    {
+        return std::clamp(std::min(
+            static_cast<float>(GetScreenWidth()) / static_cast<float>(kWindowWidth),
+            static_cast<float>(GetScreenHeight()) / static_cast<float>(kWindowHeight)),
+            0.5f,
+            1.0f);
+    }
+
+    int ScaleHudSize(int size, float scale, int minimum)
+    {
+        return std::max(minimum, static_cast<int>(std::round(static_cast<float>(size) * scale)));
+    }
+
     std::string FindSpriteSheetPath()
     {
         const fs::path candidates[] =
@@ -227,16 +241,20 @@ namespace renderer
         layout.displayWidth = std::max(8, layout.fieldWidth);
         layout.displayHeight = std::max(8, layout.fieldHeight);
 
-        const float usableWidth = static_cast<float>(GetScreenWidth()) - (kHorizontalPadding * 2.0f);
-        const float usableHeight = static_cast<float>(GetScreenHeight()) - kTopPadding - kBottomPadding;
+        const float hudScale = GetHudScale();
+        const float horizontalPadding = std::max(16.0f, kHorizontalPadding * hudScale);
+        const float topPadding = std::max(64.0f, kTopPadding * hudScale);
+        const float bottomPadding = std::max(64.0f, kBottomPadding * hudScale);
+        const float usableWidth = static_cast<float>(GetScreenWidth()) - (horizontalPadding * 2.0f);
+        const float usableHeight = static_cast<float>(GetScreenHeight()) - topPadding - bottomPadding;
         layout.tileSize = std::max(12.0f, std::floor(std::min(
             usableWidth / static_cast<float>(layout.displayWidth),
             usableHeight / static_cast<float>(layout.displayHeight))));
 
         layout.boardWidth = layout.tileSize * static_cast<float>(layout.displayWidth);
         layout.boardHeight = layout.tileSize * static_cast<float>(layout.displayHeight);
-        layout.startX = std::round(std::max(kHorizontalPadding, (static_cast<float>(GetScreenWidth()) - layout.boardWidth) * 0.5f));
-        layout.startY = kTopPadding;
+        layout.startX = std::round(std::max(horizontalPadding, (static_cast<float>(GetScreenWidth()) - layout.boardWidth) * 0.5f));
+        layout.startY = topPadding;
         layout.fieldStartX = std::round(layout.startX + (static_cast<float>(layout.displayWidth - layout.fieldWidth) * layout.tileSize * 0.5f));
         layout.fieldStartY = std::round(layout.startY + (static_cast<float>(layout.displayHeight - layout.fieldHeight) * layout.tileSize * 0.5f));
         return layout;
@@ -272,10 +290,6 @@ namespace renderer
         else if (spriteIndex >= 0)
         {
             DrawFallbackTile(tile, destination);
-            if (tint.a < 255)
-            {
-                DrawRectangleRec(destination, Fade(Color{ 255, 255, 255, 255 }, 1.0f - (static_cast<float>(tint.a) / 255.0f)));
-            }
         }
     }
 
@@ -324,25 +338,41 @@ namespace renderer
 
     void RaylibRenderer::DrawHud(const game::GameLogic& gameState) const
     {
-        DrawText("Load & Lock", 24, 24, 36, RAYWHITE);
-        DrawText(TextFormat("Level %d / %d: %s", gameState.GetLevelNumber(), gameState.GetLevelCount(), gameState.GetLevelName().c_str()), 24, 68, 24, LIGHTGRAY);
-        DrawText(TextFormat("Moves: %d", gameState.GetMoveCount()), 24, GetScreenHeight() - 84, 24, RAYWHITE);
-        DrawText(TextFormat("Level Score: %d", gameState.GetLevelScore()), 220, GetScreenHeight() - 84, 24, RAYWHITE);
-        DrawText(TextFormat("Total Score: %d", gameState.GetTotalScore()), 440, GetScreenHeight() - 84, 24, RAYWHITE);
-        DrawText("Controls: WASD/Arrows move, N/P level, R reset, G toggle graphics, Q/Esc quit", 24, GetScreenHeight() - 50, 20, LIGHTGRAY);
+        const float hudScale = GetHudScale();
+        const int margin = ScaleHudSize(24, hudScale, 12);
+        const int titleSize = ScaleHudSize(36, hudScale, 20);
+        const int textSize = ScaleHudSize(24, hudScale, 20);
+        const int controlsSize = ScaleHudSize(20, hudScale, 20);
+        const int statusSize = ScaleHudSize(20, hudScale, 20);
+        const int controlsY = GetScreenHeight() - margin - controlsSize;
+        const int statsY = controlsY - textSize - ScaleHudSize(8, hudScale, 4);
+        const int statusY = statsY - statusSize - ScaleHudSize(8, hudScale, 4);
+        const bool compactHud = hudScale < 1.0f;
+
+        DrawText("Load & Lock", margin, margin, titleSize, RAYWHITE);
+        DrawText(TextFormat("Level %d / %d: %s", gameState.GetLevelNumber(), gameState.GetLevelCount(), gameState.GetLevelName().c_str()), margin, margin + titleSize + ScaleHudSize(4, hudScale, 2), textSize, LIGHTGRAY);
+        DrawText(TextFormat("Moves: %d", gameState.GetMoveCount()), margin, statsY, textSize, RAYWHITE);
+        DrawText(TextFormat("Level Score: %d", gameState.GetLevelScore()), margin + ScaleHudSize(196, hudScale, 196), statsY, textSize, RAYWHITE);
+        DrawText(TextFormat("Total Score: %d", gameState.GetTotalScore()), margin + ScaleHudSize(416, hudScale, 416), statsY, textSize, RAYWHITE);
+        DrawText(
+            compactHud ? "Arrows move, N/P level, R reset, G graphics, Q/Esc quit" : "Controls: WASD/Arrows move, N/P level, R reset, G toggle graphics, Q/Esc quit",
+            margin,
+            controlsY,
+            controlsSize,
+            LIGHTGRAY);
 
         const game::CutsceneState& cutsceneState = gameState.GetCutsceneState();
         if (!impl_->hasSprites)
         {
-            DrawText(TextFormat("Sprite sheet not found: %s", impl_->spriteSheetPath.c_str()), 24, GetScreenHeight() - 114, 18, ORANGE);
+            DrawText(TextFormat("Sprite sheet not found: %s", impl_->spriteSheetPath.c_str()), margin, statusY, ScaleHudSize(18, hudScale, 11), ORANGE);
         }
         else if (impl_->useFallbackGraphics)
         {
-            DrawText("Fallback graphics enabled.", 24, GetScreenHeight() - 114, 20, ORANGE);
+            DrawText("Fallback graphics enabled.", margin, statusY, statusSize, ORANGE);
         }
         else if (gameState.IsComplete() && !cutsceneState.isOverlayVisible)
         {
-            DrawText("Level complete. Press N, P, R or Q.", 24, GetScreenHeight() - 114, 20, Color{ 120, 230, 140, 255 });
+            DrawText("Level complete. Press N, P, R or Q.", margin, statusY, statusSize, Color{ 120, 230, 140, 255 });
         }
     }
 
