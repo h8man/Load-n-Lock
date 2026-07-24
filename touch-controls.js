@@ -69,7 +69,7 @@ window.createTouchControls = ({ canvas, touchControls, touchButtons }) => {
         dispatchSyntheticKeyEvent("keyup", binding);
     };
 
-    const tapVirtualKey = (keyName, duration = 110) => {
+    const tapVirtualKey = (keyName, duration = 55) => {
         const releaseTimer = activeReleaseTimers.get(keyName);
         if (releaseTimer) {
             window.clearTimeout(releaseTimer);

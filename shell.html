@@ -103,6 +103,10 @@
             display: flex;
         }
 
+        #touch-controls.mirrored {
+            flex-direction: row-reverse;
+        }
+
         #touch-dpad,
         #touch-actions {
             pointer-events: auto;
@@ -122,11 +126,11 @@
             align-content: end;
         }
 
-        #touch-actions > :first-child {
-            grid-column: span 2;
+        #touch-actions .touch-button {
+            min-height: 64px;
         }
 
-        #touch-actions .touch-button {
+        #touch-mirror {
             min-height: 64px;
         }
 
@@ -200,7 +204,7 @@
             <div id="start-status">Loading...</div>
         </div>
     </div>
-    <div id="touch-controls" aria-label="Touch controls">
+    <div id="touch-controls" class="mirrored" aria-label="Touch controls">
         <div id="touch-dpad">
             <div class="touch-spacer"></div>
             <button class="touch-button" type="button" data-key="ArrowUp" aria-label="Move up">▲</button>
@@ -217,6 +221,7 @@
 
         <div id="touch-actions">
             <button class="touch-button touch-small" type="button" data-key="KeyG" aria-label="Toggle graphics">Graphics</button>
+            <button id="touch-mirror" class="touch-button touch-small" type="button" aria-label="Mirror controls" aria-pressed="true">Mirror</button>
             <button class="touch-button touch-small" type="button" data-key="KeyP" aria-label="Previous level">Prev</button>
             <button class="touch-button touch-small" type="button" data-key="KeyN" aria-label="Next level">Next</button>
             <button class="touch-button touch-small" type="button" data-key="KeyR" aria-label="Reset level">Reset</button>
@@ -233,7 +238,8 @@
         const startStatus = document.getElementById("start-status");
         const canvas = document.getElementById("canvas");
         const touchControls = document.getElementById("touch-controls");
-        const touchButtons = Array.from(document.querySelectorAll("#touch-controls .touch-button"));
+        const touchButtons = Array.from(document.querySelectorAll("#touch-controls .touch-button[data-key]"));
+        const mirrorButton = document.getElementById("touch-mirror");
 
         let runtimeReady = false;
         let startRequested = false;
@@ -243,6 +249,11 @@
             canvas,
             touchControls,
             touchButtons
+        });
+
+        mirrorButton.addEventListener("click", () => {
+            const mirrored = touchControls.classList.toggle("mirrored");
+            mirrorButton.setAttribute("aria-pressed", String(mirrored));
         });
 
         startButton.dataset.mode = "start";
@@ -349,7 +360,7 @@
     <script>
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
-                navigator.serviceWorker.register("service-worker.js?v=11").catch((error) => {
+                navigator.serviceWorker.register("service-worker.js?v=12").catch((error) => {
                     console.warn("Service worker registration failed", error);
                 });
             });
